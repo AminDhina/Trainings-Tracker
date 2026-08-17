@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Profil anlegen</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h1>Willkommen! Bitte lege dein Profil an</h1>
+    <p>Diese Daten brauchen wir, um deine Kalorien korrekt zu berechnen.</p>
+
+    <form method="POST" action="/profil-anlegen">
+        <label for="name">Name</label>
+        <input type="text" id="name" name="name" required>
+
+        <label for="alter">Alter</label>
+        <input type="number" id="alter" name="alter_jahre" required>
+
+        <label for="gewicht">Gewicht (kg)</label>
+        <input type="number" step="0.1" id="gewicht" name="gewicht_kg" required>
+
+        <button type="submit">Profil speichern</button>
+    </form>
+</body>
+</html>

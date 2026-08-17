@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <title>Training bearbeiten</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
+        label { display: block; margin-top: 15px; font-weight: bold; }
+        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
+        button { margin-top: 20px; padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        #distanz-feld { display: none; }
+        #uebungen-feld { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Training bearbeiten</h1>
+
+    <form method="POST" action="/training-bearbeiten/{{ t[0] }}">
+        <label for="datum">Datum</label>
+        <input type="date" id="datum" name="datum" value="{{ t[1] }}" required>
+
+        <label for="art">Trainingsart</label>
+        <select id="art" name="art" onchange="feldAnpassen()" required>
+            <option value="Laufen" {% if t[2] == "Laufen" %}selected{% endif %}>Laufen</option>
+            <option value="Krafttraining" {% if t[2] == "Krafttraining" %}selected{% endif %}>Krafttraining</option>
+        </select>
+
+        <label for="dauer">Dauer (Minuten)</label>
+        <input type="number" id="dauer" name="dauer_minuten" value="{{ t[3] }}" required>
+
+        <div id="distanz-feld">
+            <label for="distanz">Distanz (km)</label>
+            <input type="number" step="0.1" id="distanz" name="distanz_km" value="{{ t[4] if t[4] else '' }}">
+        </div>
+
+        <div id="uebungen-feld">
+            <label>Übungen</label>
+            <div id="uebungen-liste">
+                {% for u in uebungen %}
+                <div style="display:flex; gap:8px; margin-top:8px; align-items:center;">
+                    <input type="text" name="uebung_name" value="{{ u[0] }}" placeholder="Übung" style="flex:2;" required>
+                    <input type="number" name="uebung_saetze" value="{{ u[1] }}" placeholder="Sätze" style="flex:1;" required>
+                    <input type="number" name="uebung_wiederholungen" value="{{ u[2] }}" placeholder="Wdh." style="flex:1;" required>
+                    <input type="number" step="0.5" name="uebung_gewicht" value="{{ u[3] }}" placeholder="kg" style="flex:1;" required>
+                    <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:16px; color:#dc2626; padding:0; margin:0;">✕</button>
+                </div>
+                {% endfor %}
+            </div>
+            <button type="button" onclick="uebungHinzufuegen()" style="background:#e5e7eb; color:#111; margin-top:10px; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">+ Übung hinzufügen</button>
+        </div>
+
+        <label for="notiz">Notiz</label>
+        <textarea id="notiz" name="notiz" rows="3">{{ t[7] if t[7] else '' }}</textarea>
+
+        <button type="submit">Änderungen speichern</button>
+    </form>
+
+    <script>
+        function feldAnpassen() {
+            const art = document.getElementById("art").value;
+            const distanzFeld = document.getElementById("distanz-feld");
+            const uebungenFeld = document.getElementById("uebungen-feld");
+
+            if (art === "Laufen") {
+                distanzFeld.style.display = "block";
+                uebungenFeld.style.display = "none";
+            } else if (art === "Krafttraining") {
+                distanzFeld.style.display = "none";
+                uebungenFeld.style.display = "block";
+            } else {
+                distanzFeld.style.display = "none";
+                uebungenFeld.style.display = "none";
+            }
+        }
+
+        function uebungHinzufuegen() {
+            const liste = document.getElementById("uebungen-liste");
+            const zeile = document.createElement("div");
+            zeile.style.cssText = "display:flex; gap:8px; margin-top:8px; align-items:center;";
+            zeile.innerHTML = `
+                <input type="text" name="uebung_name" placeholder="Übung (z.B. Bankdrücken)" style="flex:2;" required>
+                <input type="number" name="uebung_saetze" placeholder="Sätze" style="flex:1;" required>
+                <input type="number" name="uebung_wiederholungen" placeholder="Wdh." style="flex:1;" required>
+                <input type="number" step="0.5" name="uebung_gewicht" placeholder="kg" style="flex:1;" required>
+                <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:16px; color:#dc2626; padding:0; margin:0;">✕</button>
+            `;
+            liste.appendChild(zeile);
+        }
+
+        window.onload = feldAnpassen;
+    </script>
+</body>
+</html>
