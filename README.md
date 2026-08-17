@@ -92,14 +92,6 @@ python app.py
 
 Danach im Browser öffnen: `http://127.0.0.1:5000`
 
-## Geplante Features
-
-- [ ] KI-basierte Trainingsanalyse und Empfehlungen
-- [ ] Garmin-Watch-Integration
-- [ ] Ernährungs-Tracking
-- [ ] Progressive Web App (PWA) für mobile Nutzung
-- [ ] Personalisierte Trainingspläne
-
 ## Autor
 
 **Amin Dhina** – Informatik-Student an der University of Applied Sciences in Frankfurt
