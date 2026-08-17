@@ -291,6 +291,7 @@ def uebersicht_anzeigen():
         meiste_kalorien_kraft=meiste_kalorien_kraft,
         max_gewichte=max_gewichte
     )
+    
 @app.route("/training-bearbeiten/<int:training_id>", methods=["GET"])
 def bearbeiten_formular_anzeigen(training_id):
     verbindung = sqlite3.connect("trainings.db")

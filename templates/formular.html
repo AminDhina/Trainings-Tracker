@@ -2,86 +2,323 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <title>Trainings-Tracker</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neues Training</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
-        body { font-family: Arial, sans-serif; max-width: 500px; margin: 40px auto; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, select, textarea { width: 100%; padding: 8px; margin-top: 5px; box-sizing: border-box; }
-        button { margin-top: 20px; padding: 10px 20px; background: #2563eb; color: white; border: none; border-radius: 5px; cursor: pointer; }
-        #distanz-feld { display: none; }
-        #uebungen-feld { display: none; }
+        .art-auswahl {
+            display: flex;
+            gap: 14px;
+            margin-top: 10px;
+        }
+
+        .art-karte {
+            flex: 1;
+            padding: 24px 16px;
+            border: 2px solid rgba(255,255,255,0.06);
+            border-radius: 14px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(255,255,255,0.02);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .art-karte:hover {
+            border-color: rgba(255,255,255,0.15);
+            background: rgba(255,255,255,0.04);
+        }
+
+        .art-karte.aktiv {
+            border-color: #FF6B35;
+            background: rgba(255, 107, 53, 0.08);
+            box-shadow: 0 0 30px rgba(255, 107, 53, 0.1);
+        }
+
+        .art-karte.aktiv::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #FF6B35, #FF2E63);
+        }
+
+        .art-karte .art-icon { font-size: 36px; display: block; margin-bottom: 10px; }
+
+        .art-karte .art-name {
+            font-size: 15px; font-weight: 700; color: #6b6b80;
+            letter-spacing: 0.5px; transition: color 0.3s;
+        }
+
+        .art-karte.aktiv .art-name { color: #e4e4e7; }
+
+        .feld-gruppe {
+            margin-top: 24px; padding: 20px;
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.04);
+            border-radius: 12px;
+        }
+
+        .feld-gruppe-titel {
+            font-size: 11px; font-weight: 700; text-transform: uppercase;
+            letter-spacing: 1.5px; color: #FF6B35; margin-bottom: 12px;
+        }
+
+        .input-mit-icon { position: relative; margin-top: 8px; }
+        .input-mit-icon input, .input-mit-icon textarea { padding-left: 44px; margin-top: 0; }
+        .input-icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); font-size: 16px; opacity: 0.4; }
+        .input-icon-textarea { top: 16px; transform: none; }
+
+        #laufen-felder, #kraft-felder {
+            max-height: 0; overflow: hidden; opacity: 0;
+            transition: max-height 0.4s ease, opacity 0.3s ease, margin 0.3s ease;
+            margin-top: 0;
+        }
+
+        #laufen-felder.sichtbar, #kraft-felder.sichtbar {
+            max-height: 500px; opacity: 1; margin-top: 24px;
+        }
+
+        .erfolg-overlay {
+            display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10, 10, 15, 0.95); backdrop-filter: blur(20px);
+            z-index: 1000; justify-content: center; align-items: center; flex-direction: column;
+        }
+
+        .erfolg-overlay.zeigen { display: flex; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .erfolg-check {
+            width: 100px; height: 100px; border-radius: 50%;
+            background: linear-gradient(135deg, #FF6B35, #FF2E63);
+            display: flex; justify-content: center; align-items: center;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 60px rgba(255, 107, 53, 0.3);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .erfolg-check svg {
+            width: 50px; height: 50px; stroke: white; stroke-width: 3;
+            fill: none; stroke-linecap: round; stroke-linejoin: round;
+        }
+
+        .erfolg-check svg path {
+            stroke-dasharray: 60; stroke-dashoffset: 60;
+            animation: drawCheck 0.6s ease 0.3s forwards;
+        }
+
+        @keyframes drawCheck { to { stroke-dashoffset: 0; } }
+
+        .erfolg-text {
+            margin-top: 28px; font-size: 22px; font-weight: 800;
+            color: #e4e4e7; animation: slideUp 0.5s ease 0.2s both;
+        }
+
+        .erfolg-subtext {
+            margin-top: 8px; font-size: 14px; color: #6b6b80;
+            animation: slideUp 0.5s ease 0.35s both;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .erfolg-stats {
+            display: flex; gap: 30px; margin-top: 30px;
+            animation: slideUp 0.5s ease 0.5s both;
+        }
+
+        .erfolg-stat { text-align: center; }
+
+        .erfolg-stat .wert {
+            font-size: 28px; font-weight: 900;
+            background: linear-gradient(135deg, #FF6B35, #FF2E63);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+        }
+
+        .erfolg-stat .beschreibung {
+            font-size: 11px; color: #555570; text-transform: uppercase;
+            letter-spacing: 1px; font-weight: 600; margin-top: 4px;
+        }
     </style>
 </head>
 <body>
-    <h1>Neues Training eintragen</h1>
-        <p><a href="/uebersicht">→ Zur Übersicht aller Trainings</a></p>
-
-    <form method="POST" action="/training-hinzufuegen">
-        <label for="datum">Datum</label>
-        <input type="date" id="datum" name="datum" required>
-
-        <label for="art">Trainingsart</label>
-        <select id="art" name="art" onchange="feldAnpassen()" required>
-            <option value="">-- auswählen --</option>
-            <option value="Laufen">Laufen</option>
-            <option value="Krafttraining">Krafttraining</option>
-        </select>
-
-        <label for="dauer">Dauer (Minuten)</label>
-        <input type="number" id="dauer" name="dauer_minuten" required>
-
-        <div id="distanz-feld">
-            <label for="distanz">Distanz (km)</label>
-            <input type="number" step="0.1" id="distanz" name="distanz_km">
+    <div class="erfolg-overlay" id="erfolgOverlay">
+        <div class="erfolg-check">
+            <svg viewBox="0 0 50 50"><path d="M14 27 L22 35 L38 16"/></svg>
         </div>
+        <div class="erfolg-text">Training gespeichert!</div>
+        <div class="erfolg-subtext">Weiter so – Konsistenz schlägt Perfektion.</div>
+        <div class="erfolg-stats" id="erfolgStats"></div>
+    </div>
 
-        <div id="uebungen-feld">
-            <label>Übungen</label>
-            <div id="uebungen-liste"></div>
-            <button type="button" onclick="uebungHinzufuegen()" style="background:#e5e7eb; color:#111; margin-top:10px; padding:8px 16px; border:none; border-radius:5px; cursor:pointer;">+ Übung hinzufügen</button>
+    <div class="header">
+        <h1>TRAININGS-TRACKER</h1>
+        <div class="header-links">
+            <a href="/uebersicht">Übersicht</a>
         </div>
+    </div>
 
-        <label for="notiz">Notiz</label>
-        <textarea id="notiz" name="notiz" rows="3" placeholder="z.B. Tempolauf oder Push Day"></textarea>
+    <div class="container">
+        <div class="form-card">
+            <h1>Neues Training</h1>
+            <p>Trag deine Einheit ein – Pace und Kalorien werden automatisch berechnet.</p>
 
-        <button type="submit">Speichern</button>
-    </form>
+            <form id="trainingForm" method="POST" action="/training-hinzufuegen">
+                <label>Trainingsart</label>
+                <input type="hidden" id="art" name="art" value="" required>
+                <div class="art-auswahl">
+                    <div class="art-karte" onclick="artWaehlen('Laufen', this)">
+                        <span class="art-icon">🏃</span>
+                        <span class="art-name">Laufen</span>
+                    </div>
+                    <div class="art-karte" onclick="artWaehlen('Krafttraining', this)">
+                        <span class="art-icon">💪</span>
+                        <span class="art-name">Krafttraining</span>
+                    </div>
+                </div>
+
+                <div class="feld-gruppe" style="margin-top:24px;">
+                    <div class="feld-gruppe-titel">Basis</div>
+                    <label for="datum">Datum</label>
+                    <div class="input-mit-icon">
+                        <span class="input-icon">📅</span>
+                        <input type="date" id="datum" name="datum" required>
+                    </div>
+                    <label for="dauer" style="margin-top:16px;">Dauer (Minuten)</label>
+                    <div class="input-mit-icon">
+                        <span class="input-icon">⏱️</span>
+                        <input type="number" id="dauer" name="dauer_minuten" placeholder="z.B. 45" required>
+                    </div>
+                </div>
+
+                <div id="laufen-felder">
+                    <div class="feld-gruppe">
+                        <div class="feld-gruppe-titel">Lauf-Details</div>
+                        <label for="distanz">Distanz (km)</label>
+                        <div class="input-mit-icon">
+                            <span class="input-icon">📍</span>
+                            <input type="number" step="0.1" id="distanz" name="distanz_km" placeholder="z.B. 5.0">
+                        </div>
+                    </div>
+                </div>
+
+                <div id="kraft-felder">
+                    <div class="feld-gruppe">
+                        <div class="feld-gruppe-titel">Übungen</div>
+                        <div id="uebungen-liste"></div>
+                        <button type="button" onclick="uebungHinzufuegen()" class="btn-secondary" style="margin-top:12px; width:100%;">+ Übung hinzufügen</button>
+                    </div>
+                </div>
+
+                <div class="feld-gruppe" style="margin-top:24px;">
+                    <label for="notiz" style="margin-top:0;">Notiz</label>
+                    <div class="input-mit-icon">
+                        <span class="input-icon input-icon-textarea">📝</span>
+                        <textarea id="notiz" name="notiz" rows="3" placeholder="z.B. Tempolauf oder Push Day"></textarea>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary">Training speichern</button>
+            </form>
+        </div>
+    </div>
 
     <script>
-    let uebungCounter = 0;
+        function artWaehlen(art, element) {
+            document.getElementById('art').value = art;
+            document.querySelectorAll('.art-karte').forEach(k => k.classList.remove('aktiv'));
+            element.classList.add('aktiv');
 
-    function feldAnpassen() {
-        const art = document.getElementById("art").value;
-        const distanzFeld = document.getElementById("distanz-feld");
-        const uebungenFeld = document.getElementById("uebungen-feld");
+            const laufenFelder = document.getElementById('laufen-felder');
+            const kraftFelder = document.getElementById('kraft-felder');
 
-        if (art === "Laufen") {
-            distanzFeld.style.display = "block";
-            uebungenFeld.style.display = "none";
-        } else if (art === "Krafttraining") {
-            distanzFeld.style.display = "none";
-            uebungenFeld.style.display = "block";
-        } else {
-            distanzFeld.style.display = "none";
-            uebungenFeld.style.display = "none";
+            if (art === 'Laufen') {
+                laufenFelder.classList.add('sichtbar');
+                kraftFelder.classList.remove('sichtbar');
+            } else {
+                laufenFelder.classList.remove('sichtbar');
+                kraftFelder.classList.add('sichtbar');
+            }
         }
-    }
 
-    function uebungHinzufuegen() {
-        uebungCounter++;
-        const liste = document.getElementById("uebungen-liste");
+        function uebungHinzufuegen() {
+            const liste = document.getElementById("uebungen-liste");
+            const zeile = document.createElement("div");
+            zeile.className = "uebung-zeile";
+            zeile.style.animation = "slideUp 0.3s ease";
+            zeile.innerHTML = `
+                <input type="text" name="uebung_name" placeholder="Übung" style="flex:2;" required>
+                <input type="number" name="uebung_saetze" placeholder="Sätze" style="flex:1;" required>
+                <input type="number" name="uebung_wiederholungen" placeholder="Wdh." style="flex:1;" required>
+                <input type="number" step="0.5" name="uebung_gewicht" placeholder="kg" style="flex:1;" required>
+                <button type="button" onclick="this.parentElement.remove()" class="btn-remove">✕</button>
+            `;
+            liste.appendChild(zeile);
+        }
 
-        const zeile = document.createElement("div");
-        zeile.style.cssText = "display:flex; gap:8px; margin-top:8px; align-items:center;";
-        zeile.innerHTML = `
-            <input type="text" name="uebung_name" placeholder="Übung (z.B. Bankdrücken)" style="flex:2;" required>
-            <input type="number" name="uebung_saetze" placeholder="Sätze" style="flex:1;" required>
-            <input type="number" name="uebung_wiederholungen" placeholder="Wdh." style="flex:1;" required>
-            <input type="number" step="0.5" name="uebung_gewicht" placeholder="kg" style="flex:1;" required>
-            <button type="button" onclick="this.parentElement.remove()" style="background:none; border:none; cursor:pointer; font-size:16px; color:#dc2626;">✕</button>
-        `;
-        liste.appendChild(zeile);
-    }
-</script>
+        document.getElementById('trainingForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            if (!document.getElementById('art').value) {
+                alert('Bitte wähle eine Trainingsart aus.');
+                return;
+            }
+
+            const form = this;
+            const overlay = document.getElementById('erfolgOverlay');
+            const statsContainer = document.getElementById('erfolgStats');
+            const art = document.getElementById('art').value;
+            const dauer = document.getElementById('dauer').value;
+
+            let statsHTML = `
+                <div class="erfolg-stat">
+                    <div class="wert">${art === 'Laufen' ? '🏃' : '💪'}</div>
+                    <div class="beschreibung">${art}</div>
+                </div>
+                <div class="erfolg-stat">
+                    <div class="wert">${dauer}</div>
+                    <div class="beschreibung">Minuten</div>
+                </div>
+            `;
+
+            if (art === 'Laufen') {
+                const distanz = document.getElementById('distanz').value;
+                if (distanz) {
+                    statsHTML += `
+                        <div class="erfolg-stat">
+                            <div class="wert">${distanz}</div>
+                            <div class="beschreibung">Kilometer</div>
+                        </div>
+                    `;
+                }
+            } else {
+                const uebungen = document.querySelectorAll('[name="uebung_name"]').length;
+                if (uebungen > 0) {
+                    statsHTML += `
+                        <div class="erfolg-stat">
+                            <div class="wert">${uebungen}</div>
+                            <div class="beschreibung">Übungen</div>
+                        </div>
+                    `;
+                }
+            }
+
+            statsContainer.innerHTML = statsHTML;
+            overlay.classList.add('zeigen');
+
+            setTimeout(function() {
+                form.submit();
+            }, 2200);
+        });
+    </script>
 </body>
 </html>
