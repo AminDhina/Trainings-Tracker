@@ -1,12 +1,13 @@
 {
     "name": "Trainings-Tracker",
     "short_name": "Tracker",
-    "description": "Lauf- & Krafttraining tracken mit Garmin-Integration",
-    "start_url": "/",
+    "description": "Dein persönlicher Fitness-Coach mit Garmin-Integration und KI-Analyse",
+    "start_url": "/uebersicht",
+    "scope": "/",
     "display": "standalone",
-    "background_color": "#0a0a0f",
-    "theme_color": "#FF6B35",
     "orientation": "portrait",
+    "background_color": "#0a0a0f",
+    "theme_color": "#0a0a0f",
     "icons": [
         {
             "src": "/static/icons/icon-192x192.png",
