@@ -38,6 +38,20 @@ CREATE TABLE IF NOT EXISTS uebungen (
     FOREIGN KEY (training_id) REFERENCES trainings (id) ON DELETE CASCADE
 )
 """)
+# Tabelle für tägliche Gesundheitsdaten von Garmin
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS gesundheit (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    datum TEXT NOT NULL UNIQUE,
+    schritte INTEGER,
+    ruhepuls INTEGER,
+    stress_level INTEGER,
+    body_battery INTEGER,
+    schlaf_dauer_min INTEGER,
+    schlaf_score INTEGER,
+    kalorien_gesamt REAL
+)
+""")
 
 verbindung.commit()
 verbindung.close()

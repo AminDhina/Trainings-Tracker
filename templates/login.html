@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – Trainings-Tracker</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0a0f;
+        }
+
+        .auth-card {
+            background: linear-gradient(145deg, #13131f, #1a1a2e);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 20px;
+            padding: 44px 36px;
+            width: 100%;
+            max-width: 420px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B35, #FF2E63, #8B5CF6);
+        }
+
+        .auth-logo {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .auth-logo-icon {
+            width: 64px;
+            height: 64px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #FF6B35, #FF2E63);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 32px;
+            margin: 0 auto 16px;
+            box-shadow: 0 8px 30px rgba(255, 107, 53, 0.3);
+        }
+
+        .auth-logo h1 {
+            font-size: 22px;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #FF6B35, #FF2E63);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .auth-logo p {
+            color: #6b6b80;
+            font-size: 14px;
+            margin-top: 4px;
+        }
+
+        .flash-msg {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .flash-error {
+            background: rgba(255, 46, 99, 0.1);
+            border: 1px solid rgba(255, 46, 99, 0.2);
+            color: #FF2E63;
+        }
+
+        .flash-success {
+            background: rgba(0, 212, 170, 0.1);
+            border: 1px solid rgba(0, 212, 170, 0.2);
+            color: #00D4AA;
+        }
+
+        .auth-link {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+            color: #6b6b80;
+        }
+
+        .auth-link a {
+            color: #FF6B35;
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        .auth-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-page">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <div class="auth-logo-icon">🏋️</div>
+                <h1>Trainings-Tracker</h1>
+                <p>Melde dich an, um weiterzumachen</p>
+            </div>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+            <div class="flash-msg flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+            {% endwith %}
+
+            <form method="POST" action="/login">
+                <label for="email">E-Mail</label>
+                <input type="email" id="email" name="email" placeholder="deine@email.de" required>
+
+                <label for="passwort" style="margin-top:16px;">Passwort</label>
+                <input type="password" id="passwort" name="passwort" placeholder="••••••••" required>
+
+                <button type="submit" class="btn-primary">Anmelden</button>
+            </form>
+
+            <div class="auth-link">
+                Noch kein Konto? <a href="/registrieren">Jetzt registrieren</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

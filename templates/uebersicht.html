@@ -275,10 +275,10 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>TRAININGS-TRACKER</h1>
-        <div class="header-links">
-            <a href="/">+ Neues Training</a>
+    <div class="header-links">
+    <a href="/ki-coaching">🧠 Coach</a>
+    <a href="/">+ Training</a>
+    <a href="/profil">👤 {{ current_user.name }}</a>
         </div>
     </div>
 
@@ -299,6 +299,361 @@
             </div>
         </div>
 
+<!-- GESUNDHEITS-DASHBOARD -->
+{% if gesundheit %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px;">
+        <div>
+            <div class="section-label">Gesundheits-Monitor</div>
+            <h2>Dein Status heute</h2>
+        </div>
+        <a href="/garmin-sync" style="text-decoration:none; font-size:12px; padding:8px 16px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#6b6b80; font-weight:600; transition:all 0.3s;" onmouseover="this.style.borderColor='#FF6B35'; this.style.color='#FF6B35';" onmouseout="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.color='#6b6b80';">🔄 Garmin Sync</a>
+    </div>
+
+    <!-- KREISFÖRMIGE GAUGES -->
+    <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center;">
+
+        <!-- BODY BATTERY -->
+        <div class="gauge-card" id="gauge-battery">
+            <div class="gauge-ring-container">
+                <svg viewBox="0 0 120 120" class="gauge-svg">
+                    <circle cx="60" cy="60" r="52" class="gauge-bg"/>
+                    <circle cx="60" cy="60" r="52" class="gauge-fill" id="ring-battery"/>
+                </svg>
+                <div class="gauge-center">
+                    <div class="gauge-value" id="val-battery">{{ gesundheit[5] if gesundheit[5] else 0 }}</div>
+                    <div class="gauge-unit">%</div>
+                </div>
+            </div>
+            <div class="gauge-label">🔋 Body Battery</div>
+            <div class="gauge-status" id="status-battery"></div>
+        </div>
+
+        <!-- STRESS -->
+        <div class="gauge-card" id="gauge-stress">
+            <div class="gauge-ring-container">
+                <svg viewBox="0 0 120 120" class="gauge-svg">
+                    <circle cx="60" cy="60" r="52" class="gauge-bg"/>
+                    <circle cx="60" cy="60" r="52" class="gauge-fill" id="ring-stress"/>
+                </svg>
+                <div class="gauge-center">
+                    <div class="gauge-value" id="val-stress">{{ gesundheit[4] if gesundheit[4] else 0 }}</div>
+                    <div class="gauge-unit">lvl</div>
+                </div>
+            </div>
+            <div class="gauge-label">😌 Stress</div>
+            <div class="gauge-status" id="status-stress"></div>
+        </div>
+
+        <!-- RUHEPULS -->
+        <div class="gauge-card" id="gauge-hr">
+            <div class="gauge-ring-container">
+                <svg viewBox="0 0 120 120" class="gauge-svg">
+                    <circle cx="60" cy="60" r="52" class="gauge-bg"/>
+                    <circle cx="60" cy="60" r="52" class="gauge-fill" id="ring-hr"/>
+                </svg>
+                <div class="gauge-center">
+                    <div class="gauge-value" id="val-hr">{{ gesundheit[3] if gesundheit[3] else 0 }}</div>
+                    <div class="gauge-unit">bpm</div>
+                </div>
+            </div>
+            <div class="gauge-label">💓 Ruhepuls</div>
+            <div class="gauge-status" id="status-hr"></div>
+        </div>
+
+        <!-- SCHLAF -->
+        <div class="gauge-card" id="gauge-sleep">
+            <div class="gauge-ring-container">
+                <svg viewBox="0 0 120 120" class="gauge-svg">
+                    <circle cx="60" cy="60" r="52" class="gauge-bg"/>
+                    <circle cx="60" cy="60" r="52" class="gauge-fill" id="ring-sleep"/>
+                </svg>
+                <div class="gauge-center">
+                    {% if gesundheit[6] %}
+                    <div class="gauge-value" id="val-sleep">{{ gesundheit[6] // 60 }}<span style="font-size:14px; font-weight:600;">h</span>{{ gesundheit[6] % 60 }}</div>
+                    {% else %}
+                    <div class="gauge-value" id="val-sleep">–</div>
+                    {% endif %}
+                    <div class="gauge-unit">Schlaf</div>
+                </div>
+            </div>
+            <div class="gauge-label">😴 Schlafdauer</div>
+            <div class="gauge-status" id="status-sleep"></div>
+        </div>
+
+        <!-- SCHRITTE -->
+        <div class="gauge-card" id="gauge-steps">
+            <div class="gauge-ring-container">
+                <svg viewBox="0 0 120 120" class="gauge-svg">
+                    <circle cx="60" cy="60" r="52" class="gauge-bg"/>
+                    <circle cx="60" cy="60" r="52" class="gauge-fill" id="ring-steps"/>
+                </svg>
+                <div class="gauge-center">
+                    <div class="gauge-value" style="font-size:20px;" id="val-steps">{{ gesundheit[2] if gesundheit[2] else 0 }}</div>
+                    <div class="gauge-unit">Schritte</div>
+                </div>
+            </div>
+            <div class="gauge-label">👟 Aktivität</div>
+            <div class="gauge-status" id="status-steps"></div>
+        </div>
+
+    </div>
+
+    <!-- EMPFEHLUNG -->
+    <div id="empfehlung-box" style="margin-top:24px; padding:20px; background:rgba(255,255,255,0.02); border:1px solid rgba(255,255,255,0.05); border-radius:14px; display:flex; gap:16px; align-items:center;">
+        <div id="empfehlung-icon" style="font-size:36px; flex-shrink:0;"></div>
+        <div>
+            <div id="empfehlung-titel" style="font-size:15px; font-weight:800; color:#e4e4e7; margin-bottom:4px;"></div>
+            <div id="empfehlung-text" style="font-size:13px; color:#6b6b80; line-height:1.5;"></div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .gauge-card {
+        flex: 1;
+        min-width: 140px;
+        max-width: 170px;
+        text-align: center;
+        padding: 20px 12px;
+        background: rgba(255,255,255,0.02);
+        border: 1px solid rgba(255,255,255,0.05);
+        border-radius: 16px;
+        transition: all 0.3s ease;
+    }
+
+    .gauge-card:hover {
+        background: rgba(255,255,255,0.04);
+        border-color: rgba(255,255,255,0.1);
+        transform: translateY(-3px);
+    }
+
+    .gauge-ring-container {
+        position: relative;
+        width: 110px;
+        height: 110px;
+        margin: 0 auto 12px;
+    }
+
+    .gauge-svg {
+        width: 110px;
+        height: 110px;
+        transform: rotate(-90deg);
+    }
+
+    .gauge-bg {
+        fill: none;
+        stroke: rgba(255,255,255,0.06);
+        stroke-width: 8;
+    }
+
+    .gauge-fill {
+        fill: none;
+        stroke-width: 8;
+        stroke-linecap: round;
+        stroke-dasharray: 326.73;
+        stroke-dashoffset: 326.73;
+        transition: stroke-dashoffset 1.5s ease, stroke 0.5s ease;
+    }
+
+    .gauge-center {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+    }
+
+    .gauge-value {
+        font-size: 26px;
+        font-weight: 900;
+        color: #e4e4e7;
+        line-height: 1;
+    }
+
+    .gauge-unit {
+        font-size: 10px;
+        color: #555570;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-weight: 700;
+        margin-top: 2px;
+    }
+
+    .gauge-label {
+        font-size: 12px;
+        font-weight: 700;
+        color: #8b8b9e;
+        margin-bottom: 4px;
+    }
+
+    .gauge-status {
+        font-size: 11px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 0.8px;
+        padding: 3px 10px;
+        border-radius: 20px;
+        display: inline-block;
+    }
+
+    .status-hervorragend { background: rgba(0, 212, 170, 0.15); color: #00D4AA; }
+    .status-gut { background: rgba(0, 180, 216, 0.15); color: #00B4D8; }
+    .status-okay { background: rgba(255, 183, 77, 0.15); color: #FFB74D; }
+    .status-niedrig { background: rgba(255, 107, 53, 0.15); color: #FF6B35; }
+    .status-kritisch { background: rgba(255, 46, 99, 0.15); color: #FF2E63; }
+
+    @media (max-width: 768px) {
+        .gauge-card { min-width: calc(50% - 12px); }
+    }
+</style>
+
+<script>
+(function() {
+    const circumference = 2 * Math.PI * 52; // 326.73
+
+    // ===== BEWERTUNGS-REFERENZEN (sportwissenschaftlich fundiert) =====
+
+    // Body Battery (Garmin 0-100)
+    function bewerteBattery(val) {
+        if (val >= 80) return { pct: val, color: '#00D4AA', status: 'Hervorragend', cls: 'status-hervorragend' };
+        if (val >= 60) return { pct: val, color: '#00B4D8', status: 'Gut', cls: 'status-gut' };
+        if (val >= 40) return { pct: val, color: '#FFB74D', status: 'Moderat', cls: 'status-okay' };
+        if (val >= 20) return { pct: val, color: '#FF6B35', status: 'Niedrig', cls: 'status-niedrig' };
+        return { pct: val, color: '#FF2E63', status: 'Erschöpft', cls: 'status-kritisch' };
+    }
+
+    // Stress (Garmin 0-100, niedriger = besser)
+    function bewerteStress(val) {
+        if (val <= 25) return { pct: 100 - val, color: '#00D4AA', status: 'Sehr niedrig', cls: 'status-hervorragend' };
+        if (val <= 40) return { pct: 100 - val, color: '#00B4D8', status: 'Niedrig', cls: 'status-gut' };
+        if (val <= 55) return { pct: 100 - val, color: '#FFB74D', status: 'Moderat', cls: 'status-okay' };
+        if (val <= 75) return { pct: 100 - val, color: '#FF6B35', status: 'Erhöht', cls: 'status-niedrig' };
+        return { pct: 100 - val, color: '#FF2E63', status: 'Hoch', cls: 'status-kritisch' };
+    }
+
+    // Ruhepuls (Referenz: Sportler 40-60, Durchschnitt 60-80)
+    // Niedriger = fitter. 100% bei 40bpm, 0% bei 100bpm
+    function bewerteHR(val) {
+        let pct = Math.max(0, Math.min(100, ((100 - val) / 60) * 100));
+        if (val <= 50) return { pct: pct, color: '#00D4AA', status: 'Elite-Niveau', cls: 'status-hervorragend' };
+        if (val <= 59) return { pct: pct, color: '#00B4D8', status: 'Sehr fit', cls: 'status-gut' };
+        if (val <= 69) return { pct: pct, color: '#FFB74D', status: 'Gut', cls: 'status-okay' };
+        if (val <= 79) return { pct: pct, color: '#FF6B35', status: 'Durchschnitt', cls: 'status-niedrig' };
+        return { pct: pct, color: '#FF2E63', status: 'Verbesserbar', cls: 'status-kritisch' };
+    }
+
+    // Schlaf (Referenz Sportler: optimal 7.5-9h, WHO empfiehlt 7-9h)
+    // 100% bei 8h, darunter und darüber weniger
+    function bewerteSchlaf(minuten) {
+        if (!minuten) return { pct: 0, color: '#555570', status: 'Keine Daten', cls: 'status-okay' };
+        let stunden = minuten / 60;
+        let pct = Math.max(0, Math.min(100, (stunden / 9) * 100));
+        if (stunden >= 7.5 && stunden <= 9) return { pct: pct, color: '#00D4AA', status: 'Optimal', cls: 'status-hervorragend' };
+        if (stunden >= 7 && stunden <= 9.5) return { pct: pct, color: '#00B4D8', status: 'Gut', cls: 'status-gut' };
+        if (stunden >= 6 && stunden <= 10) return { pct: pct, color: '#FFB74D', status: 'Ausreichend', cls: 'status-okay' };
+        if (stunden >= 5) return { pct: pct, color: '#FF6B35', status: 'Zu wenig', cls: 'status-niedrig' };
+        return { pct: pct, color: '#FF2E63', status: 'Kritisch', cls: 'status-kritisch' };
+    }
+
+    // Schritte (WHO empfiehlt 8000-10000, Sportler oft 12000+)
+    function bewerteSchritte(val) {
+        let pct = Math.min(100, (val / 12000) * 100);
+        if (val >= 12000) return { pct: 100, color: '#00D4AA', status: 'Sehr aktiv', cls: 'status-hervorragend' };
+        if (val >= 10000) return { pct: pct, color: '#00B4D8', status: 'Aktiv', cls: 'status-gut' };
+        if (val >= 7500) return { pct: pct, color: '#FFB74D', status: 'Moderat', cls: 'status-okay' };
+        if (val >= 5000) return { pct: pct, color: '#FF6B35', status: 'Wenig aktiv', cls: 'status-niedrig' };
+        return { pct: pct, color: '#FF2E63', status: 'Inaktiv', cls: 'status-kritisch' };
+    }
+
+    // ===== RINGS ANIMIEREN =====
+    function setRing(id, pct, color) {
+        const ring = document.getElementById(id);
+        if (!ring) return;
+        const offset = circumference - (pct / 100) * circumference;
+        ring.style.stroke = color;
+        setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+    }
+
+    // ===== STATUS-BADGES SETZEN =====
+    function setStatus(id, bewertung) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = bewertung.status;
+        el.className = 'gauge-status ' + bewertung.cls;
+    }
+
+    // Werte auslesen
+    const battery = {{ gesundheit[5] if gesundheit[5] else 0 }};
+    const stress = {{ gesundheit[4] if gesundheit[4] else 0 }};
+    const hr = {{ gesundheit[3] if gesundheit[3] else 0 }};
+    const schlafMin = {{ gesundheit[6] if gesundheit[6] else 0 }};
+    const schritte = {{ gesundheit[2] if gesundheit[2] else 0 }};
+
+    // Bewertungen berechnen
+    const bBattery = bewerteBattery(battery);
+    const bStress = bewerteStress(stress);
+    const bHR = bewerteHR(hr);
+    const bSchlaf = bewerteSchlaf(schlafMin);
+    const bSchritte = bewerteSchritte(schritte);
+
+    // Rings setzen
+    setRing('ring-battery', bBattery.pct, bBattery.color);
+    setRing('ring-stress', bStress.pct, bStress.color);
+    setRing('ring-hr', bHR.pct, bHR.color);
+    setRing('ring-sleep', bSchlaf.pct, bSchlaf.color);
+    setRing('ring-steps', bSchritte.pct, bSchritte.color);
+
+    // Status-Badges setzen
+    setStatus('status-battery', bBattery);
+    setStatus('status-stress', bStress);
+    setStatus('status-hr', bHR);
+    setStatus('status-sleep', bSchlaf);
+    setStatus('status-steps', bSchritte);
+
+    // ===== GESAMTEMPFEHLUNG =====
+    const scores = [
+        bBattery.cls === 'status-hervorragend' ? 5 : bBattery.cls === 'status-gut' ? 4 : bBattery.cls === 'status-okay' ? 3 : bBattery.cls === 'status-niedrig' ? 2 : 1,
+        bStress.cls === 'status-hervorragend' ? 5 : bStress.cls === 'status-gut' ? 4 : bStress.cls === 'status-okay' ? 3 : bStress.cls === 'status-niedrig' ? 2 : 1,
+        bHR.cls === 'status-hervorragend' ? 5 : bHR.cls === 'status-gut' ? 4 : bHR.cls === 'status-okay' ? 3 : bHR.cls === 'status-niedrig' ? 2 : 1,
+        bSchlaf.cls === 'status-hervorragend' ? 5 : bSchlaf.cls === 'status-gut' ? 4 : bSchlaf.cls === 'status-okay' ? 3 : bSchlaf.cls === 'status-niedrig' ? 2 : 1,
+    ];
+    const avgScore = scores.reduce((a, b) => a + b, 0) / scores.length;
+
+    const empIcon = document.getElementById('empfehlung-icon');
+    const empTitel = document.getElementById('empfehlung-titel');
+    const empText = document.getElementById('empfehlung-text');
+    const empBox = document.getElementById('empfehlung-box');
+
+    if (avgScore >= 4.5) {
+        empIcon.textContent = '🟢';
+        empTitel.textContent = 'Hervorragender Zustand – Perfekt für intensive Einheiten';
+        empText.textContent = 'Dein Körper ist optimal erholt. Heute ist ein guter Tag für ein hartes Training: Intervalle, Tempoläufe oder schwere Krafteinheiten. Dein niedriger Ruhepuls und die hohe Body Battery zeigen, dass dein Körper bereit ist.';
+        empBox.style.borderColor = 'rgba(0, 212, 170, 0.2)';
+    } else if (avgScore >= 3.5) {
+        empIcon.textContent = '🔵';
+        empTitel.textContent = 'Guter Zustand – Moderates Training empfohlen';
+        empText.textContent = 'Du bist gut erholt, aber nicht auf dem Peak. Ein moderates Training (lockerer Dauerlauf, technisches Krafttraining mit mittlerer Intensität) ist ideal. Achte auf ausreichend Schlaf heute Nacht.';
+        empBox.style.borderColor = 'rgba(0, 180, 216, 0.2)';
+    } else if (avgScore >= 2.5) {
+        empIcon.textContent = '🟡';
+        empTitel.textContent = 'Moderate Erholung – Leichte Aktivität bevorzugen';
+        empText.textContent = 'Dein Körper braucht noch etwas Erholung. Heute besser einen lockeren Lauf, Mobility-Training oder leichtes Krafttraining. Priorisiere Schlaf (mind. 8 Stunden) und Hydration.';
+        empBox.style.borderColor = 'rgba(255, 183, 77, 0.2)';
+    } else if (avgScore >= 1.5) {
+        empIcon.textContent = '🟠';
+        empTitel.textContent = 'Erhöhte Belastung – Aktive Erholung empfohlen';
+        empText.textContent = 'Dein Stress ist erhöht und/oder deine Erholung war nicht ausreichend. Heute besser nur Spazierengehen, Stretching oder Yoga. Ein hartes Training wäre kontraproduktiv und könnte zu Übertraining führen.';
+        empBox.style.borderColor = 'rgba(255, 107, 53, 0.2)';
+    } else {
+        empIcon.textContent = '🔴';
+        empTitel.textContent = 'Ruhetag notwendig – Erholung priorisieren';
+        empText.textContent = 'Dein Körper sendet klare Signale: Du brauchst heute Ruhe. Fokus auf Schlaf (8-9 Stunden), Ernährung und Stressreduktion. Training in diesem Zustand erhöht das Verletzungs- und Übertrainingsrisiko deutlich.';
+        empBox.style.borderColor = 'rgba(255, 46, 99, 0.2)';
+    }
+})();
+</script>
+{% endif %}
         <div class="card">
             <div class="chart-header">
                 <h2>Trainingsverlauf</h2>
@@ -374,6 +729,68 @@
                     {% if meiste_kalorien_kraft %}<div class="datum">{{ meiste_kalorien_kraft[1] }}</div>{% endif %}
                 </div>
             </div>
+
+            {% if andere_trainings %}
+<div class="card">
+    <h2>🏅 Weitere Aktivitäten</h2>
+
+    {% for t in andere_trainings %}
+    <div class="training-card">
+        <div class="training-card-header">
+            <div class="training-datum">
+                <span class="tag">{{ t[1][8:10] }}.</span>
+                {{ ["Jan","Feb","Mär","Apr","Mai","Jun","Jul","Aug","Sep","Okt","Nov","Dez"][t[1][5:7]|int - 1] }}
+                {{ t[1][0:4] }}
+            </div>
+            <div class="training-aktionen">
+                <a href="/training-bearbeiten/{{ t[0] }}" title="Bearbeiten" class="aktion-bearbeiten">✏️</a>
+                <form method="POST" action="/training-loeschen/{{ t[0] }}" style="display:inline"
+                      onsubmit="return confirm('Wirklich löschen?')">
+                    <button type="submit" title="Löschen" class="aktion-loeschen">🗑️</button>
+                </form>
+            </div>
+        </div>
+        <div class="training-card-body">
+            <div class="training-metrik">
+                <span class="metrik-wert" style="font-size:16px; color:#FF6B35;">{{ t[2] }}</span>
+                <span class="metrik-label">Aktivität</span>
+            </div>
+            <div class="training-metrik">
+                <span class="metrik-wert">{{ t[3] }}<span class="metrik-einheit">min</span></span>
+                <span class="metrik-label">Dauer</span>
+            </div>
+            {% if t[4] %}
+            <div class="training-metrik">
+                <span class="metrik-wert">{{ t[4] }}<span class="metrik-einheit">km</span></span>
+                <span class="metrik-label">Distanz</span>
+            </div>
+            {% endif %}
+            {% if t[5] %}
+            <div class="training-metrik">
+                <span class="metrik-wert">{{ t[5] }}</span>
+                <span class="metrik-label">Pace</span>
+            </div>
+            {% endif %}
+            {% if t[6] %}
+            <div class="training-metrik">
+                <span class="metrik-wert">{{ t[6]|round|int }}<span class="metrik-einheit">kcal</span></span>
+                <span class="metrik-label">Kalorien</span>
+            </div>
+            {% endif %}
+            {% if t[9] %}
+            <div class="training-metrik">
+                <span class="metrik-wert">{{ t[9] }}<span class="metrik-einheit">bpm</span></span>
+                <span class="metrik-label">Ø Puls</span>
+            </div>
+            {% endif %}
+        </div>
+        {% if t[7] %}
+        <div class="training-notiz">{{ t[7] }}</div>
+        {% endif %}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
 
             {% if max_gewichte %}
             <h3>💪 Maximalgewicht pro Übung</h3>
@@ -579,5 +996,10 @@
             document.getElementById('btn-jahr').classList.toggle('toggle-aktiv', ansicht === 'jahr');
         }
     </script>
+    <script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/static/service-worker.js');
+    }
+</script>
 </body>
 </html>

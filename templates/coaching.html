@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#FF6B35">
+    <link rel="manifest" href="/static/manifest.json">
+    <title>KI-Coach</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .coaching-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+
+        .coaching-hero {
+            text-align: center;
+            padding: 40px 20px;
+            margin-bottom: 30px;
+        }
+
+        .coaching-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #FF6B35, #FF2E63, #8B5CF6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 40px;
+            margin: 0 auto 20px;
+            box-shadow: 0 8px 40px rgba(255, 107, 53, 0.3);
+        }
+
+        .coaching-hero h1 {
+            font-size: 28px;
+            font-weight: 900;
+            color: #e4e4e7;
+            margin-bottom: 8px;
+        }
+
+        .coaching-hero p {
+            color: #6b6b80;
+            font-size: 14px;
+        }
+
+        .analyse-card {
+            background: linear-gradient(145deg, #13131f, #1a1a2e);
+            border: 1px solid rgba(255,255,255,0.06);
+            border-radius: 16px;
+            padding: 32px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .analyse-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #FF6B35, #FF2E63, #8B5CF6);
+        }
+
+        .analyse-text {
+            color: #b0b0c0;
+            font-size: 15px;
+            line-height: 1.9;
+            white-space: pre-line;
+        }
+
+        .analyse-text h1, .analyse-text h2, .analyse-text h3 {
+            color: #e4e4e7;
+            margin-top: 28px;
+            margin-bottom: 12px;
+        }
+
+        .analyse-text strong {
+            color: #e4e4e7;
+        }
+
+        .analyse-text em {
+            color: #FF6B35;
+            font-style: normal;
+            font-weight: 600;
+        }
+
+        .coaching-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 32px;
+            justify-content: center;
+        }
+
+        .btn-coaching {
+            padding: 14px 28px;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-coaching-primary {
+            background: linear-gradient(135deg, #FF6B35, #FF2E63);
+            color: white;
+        }
+
+        .btn-coaching-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-coaching-secondary {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: #b0b0c0;
+        }
+
+        .btn-coaching-secondary:hover {
+            background: rgba(255,255,255,0.1);
+            color: #e4e4e7;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>TRAININGS-TRACKER</h1>
+        <div class="header-links">
+            <a href="/uebersicht">Übersicht</a>
+        </div>
+    </div>
+
+    <div class="coaching-container">
+        <div class="coaching-hero">
+            <div class="coaching-icon">🧠</div>
+            <h1>Dein KI-Coach</h1>
+            <p>Personalisierte Analyse basierend auf {{ letzte_trainings_count }} Trainings und deinen Garmin-Gesundheitsdaten</p>
+        </div>
+
+        <div class="analyse-card">
+            <div class="analyse-text">{{ antwort }}</div>
+        </div>
+
+        <div class="coaching-actions">
+            <a href="/uebersicht" class="btn-coaching btn-coaching-secondary">← Übersicht</a>
+            <a href="/ki-coaching" class="btn-coaching btn-coaching-primary">🔄 Neue Analyse</a>
+        </div>
+    </div>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/static/service-worker.js');
+        }
+    </script>
+</body>
+</html>
