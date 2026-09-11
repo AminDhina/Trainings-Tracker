@@ -516,3 +516,132 @@ input::placeholder, textarea::placeholder {
     .header h1 { font-size: 15px; }
     .header-links a { font-size: 12px; padding: 6px 14px; }
 }
+@media (max-width: 480px) {
+    /* Header kompakter */
+    .header {
+        padding: 0 12px;
+        height: 56px;
+    }
+
+    .header h1 {
+        font-size: 0;  /* Text verstecken, nur Logo zeigen */
+    }
+
+    .header h1::before {
+        content: '🏋️ TT';
+        font-size: 16px;
+        -webkit-text-fill-color: white;
+    }
+
+    .header-links a {
+        padding: 6px 12px;
+        font-size: 12px;
+        border-radius: 6px;
+    }
+
+    /* Stats nebeneinander statt untereinander */
+    .stats {
+        flex-direction: row !important;
+        gap: 8px;
+    }
+
+    .stat-box {
+        padding: 14px 8px;
+        border-radius: 12px;
+    }
+
+    .stat-box .zahl {
+        font-size: 20px;
+    }
+
+    .stat-box .label {
+        font-size: 9px;
+        letter-spacing: 0.5px;
+    }
+
+    /* Rekord-Boxen kompakter */
+    .rekord-box {
+        padding: 14px 8px;
+    }
+
+    .rekord-box .zahl {
+        font-size: 18px;
+    }
+
+    .rekord-box .label {
+        font-size: 9px;
+    }
+
+    /* Cards weniger Padding */
+    .card {
+        padding: 18px 14px;
+        border-radius: 14px;
+        margin: 0 0 16px 0;
+    }
+
+    .card h2 {
+        font-size: 16px;
+    }
+
+    /* Container weniger Rand */
+    .container {
+        padding: 16px 10px;
+    }
+
+    /* Gauge-Cards auf Mobile */
+    .gauge-card {
+        min-width: calc(33% - 8px);
+        padding: 12px 8px;
+    }
+
+    .gauge-ring-container {
+        width: 80px;
+        height: 80px;
+    }
+
+    .gauge-svg {
+        width: 80px;
+        height: 80px;
+    }
+
+    .gauge-value {
+        font-size: 20px;
+    }
+
+    .gauge-label {
+        font-size: 10px;
+    }
+
+    /* Section Labels */
+    .section-label {
+        font-size: 10px;
+    }
+
+    /* Training Cards */
+    .training-card {
+        padding: 14px;
+    }
+
+    .training-metrik .metrik-wert {
+        font-size: 18px;
+    }
+
+    .training-card-body {
+        gap: 16px;
+    }
+
+    /* Übung Tags */
+    .uebung-tag {
+        padding: 6px 10px;
+        font-size: 12px;
+    }
+
+    /* Formular */
+    .form-card {
+        padding: 24px 16px;
+    }
+
+    .form-card h1 {
+        font-size: 20px;
+    }
+}
