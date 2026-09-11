@@ -298,6 +298,13 @@
                 <div class="label">Kalorien diese Woche</div>
             </div>
         </div>
+    
+        {% if not gesundheit %}
+<div class="card" style="text-align:center; padding:30px;">
+    <p style="color:#6b6b80; margin-bottom:16px;">⌚ Verbinde deine Garmin-Uhr, um Gesundheitsdaten zu sehen</p>
+    <a href="/garmin-sync" style="display:inline-block; padding:12px 24px; background:linear-gradient(135deg, #FF6B35, #FF2E63); color:white; text-decoration:none; border-radius:10px; font-weight:700; font-size:14px;">🔄 Garmin jetzt synchronisieren</a>
+</div>
+{% endif %}
 
 <!-- GESUNDHEITS-DASHBOARD -->
 {% if gesundheit %}
